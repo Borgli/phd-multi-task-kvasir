@@ -1,6 +1,6 @@
+import keras
 from keras import Input, Model
 from keras.layers import Conv2D, MaxPooling2D, Dropout, UpSampling2D, concatenate, Flatten, Dense
-from keras.optimizers.optimizer_v2.rmsprop import RMSprop
 
 
 def create_model(pretrained_weights=None):
@@ -59,7 +59,7 @@ def create_model(pretrained_weights=None):
                   outputs=[classification_output, segmentation_output])
     model.summary()
 
-    opt = RMSprop(learning_rate=1e-3)
+    opt = keras.optimizers.rmsprop_v2.RMSprop(learning_rate=1e-3)
     model.compile(optimizer=opt,
                   loss={'classification': 'binary_crossentropy', 'segmentation': 'binary_crossentropy'},
                   loss_weights={'classification': 0.1, 'segmentation': 0.1}, metrics=['accuracy'])
