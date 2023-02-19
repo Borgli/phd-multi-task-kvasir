@@ -127,3 +127,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# dataset
+hyper-kvasir
+
+# model
+training_1
+
+# idea
+.idea
