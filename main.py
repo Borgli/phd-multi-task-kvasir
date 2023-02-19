@@ -1,25 +1,11 @@
 import pathlib
 
-import keras
 import skimage.io
-from keras.models import Model
-from keras.layers import Input, Dense, Dropout, Activation, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras.preprocessing.image import ImageDataGenerator
 
-from keras.utils import plot_model, to_categorical
-import numpy as np
 import os
-import skimage.io as io
 import skimage.transform as trans
 import numpy as np
-from keras.models import *
-from keras.layers import *
-from keras.optimizers import *
-from keras.callbacks import ModelCheckpoint, LearningRateScheduler
-from keras import backend as keras
 import tensorflow as tf
-from skimage.io import imread_collection
 
 from model import create_model
 
