@@ -13,9 +13,11 @@ BATCH_SIZE = 32
 IMG_HEIGHT = 256
 IMG_WIDTH = 256
 
-DATASET_DIR = pathlib.Path("hyper-kvasir/segmented-images")
-MASK_DATA = DATASET_DIR.joinpath("masks")
-CLASS_DATA = DATASET_DIR.joinpath("images")
+DATASET_DIR = pathlib.Path("data")
+TEST_DATA = DATASET_DIR.joinpath("test")
+TRAIN_DATA = DATASET_DIR.joinpath("train")
+VALIDATION_DATA = DATASET_DIR.joinpath("validation")
+
 '''
 train_ds = tf.keras.utils.image_dataset_from_directory(
     CLASS_DATA,
@@ -49,28 +51,28 @@ train_ds = list(train_ds.as_numpy_iterator())
 mask_ds = list(mask_ds.as_numpy_iterator())
 '''
 
-training_data = []
-labels = []
-CLASS_DATA = CLASS_DATA.joinpath("polyps")
-for file in os.listdir(CLASS_DATA):
-    training_data.append(skimage.transform.resize(skimage.io.imread(CLASS_DATA.joinpath(file), as_gray=True), (256, 256, 1)))
-    labels.append(1)
 
-mask = []
-for file in os.listdir(MASK_DATA):
-    mask.append(skimage.transform.resize(skimage.io.imread(MASK_DATA.joinpath(file), as_gray=True), (256, 256, 1)))
+def read_images(path, get_labels=False):
+    images = []
+    labels = []
+    for file in os.listdir(path):
+        images.append(skimage.transform.resize(skimage.io.imread(path.joinpath(file),
+                                                                 as_gray=True), (256, 256, 1)))
+        if get_labels:
+            labels.append(1)
+
+    if get_labels:
+        return images, labels
+    else:
+        return images
 
 
-train = training_data[(len(training_data)//100) * 20:]
-test = training_data[:(len(training_data)//100) * 20]
+train_images, train_labels = read_images(TRAIN_DATA.joinpath("images"), get_labels=True)
+train_masks = read_images(TRAIN_DATA.joinpath("masks"))
+test_images, test_labels = read_images(TEST_DATA.joinpath("images"), get_labels=True)
+test_masks = read_images(TEST_DATA.joinpath("masks"))
 
-train_labels = labels[(len(labels)//100) * 20:]
-test_labels = labels[:(len(labels)//100) * 20]
-
-train_mask = mask[(len(mask)//100) * 20:]
-test_mask = mask[:(len(labels)//100) * 20]
-
-#train = imread_collection(os.listdir(CLASS_DATA.joinpath("polyps")))
+# train = imread_collection(os.listdir(CLASS_DATA.joinpath("polyps")))
 
 '''
 try:
@@ -89,22 +91,21 @@ checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # Create a callback that saves the model's weights
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
-                                              save_weights_only=True,
-                                              verbose=1)
+                                                 save_weights_only=True,
+                                                 verbose=1)
 
-history = model.fit({'input': np.array(train)},
-                    {'classification': np.array(train_labels), 'segmentation': np.array(train_mask)},
+history = model.fit({'input': np.array(train_images)},
+                    {'classification': np.array(train_labels), 'segmentation': np.array(train_masks)},
                     epochs=50, batch_size=BATCH_SIZE,
                     verbose=1,
-                    validation_data=({'input': np.array(test)},
-                    {'classification': np.array(test_labels), 'segmentation': np.array(test_mask)}),
+                    validation_data=({'input': np.array(test_images)},
+                                     {'classification': np.array(test_labels), 'segmentation': np.array(test_masks)}),
                     callbacks=[cp_callback]
                     )
 
 # Train the model with the new callback
-#model.fit(train_images,
+# model.fit(train_images,
 #          train_labels,
 #          epochs=10,
 #          validation_data=(test_images, test_labels),
 #          callbacks=[cp_callback])  # Pass callback to training
-

@@ -130,6 +130,8 @@ dmypy.json
 
 # dataset
 hyper-kvasir
+data
+*.zip
 
 # model
 training_1
