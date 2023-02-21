@@ -4,7 +4,7 @@ from keras.layers import Conv2D, MaxPooling2D, Dropout, UpSampling2D, concatenat
 
 
 def create_model(pretrained_weights=None):
-    input_size = (256, 256, 1)
+    input_size = (128, 128, 1)
     inputs = Input(input_size, name='input')
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(conv1)
@@ -59,7 +59,7 @@ def create_model(pretrained_weights=None):
                   outputs=[classification_output, segmentation_output])
     model.summary()
 
-    opt = keras.optimizers.rmsprop_v2.RMSprop(learning_rate=1e-3)
+    opt = keras.optimizers.rmsprop_v2.RMSprop(learning_rate=1e-2)
     model.compile(optimizer=opt,
                   loss={'classification': 'binary_crossentropy', 'segmentation': 'binary_crossentropy'},
                   loss_weights={'classification': 0.1, 'segmentation': 0.1}, metrics=['accuracy'])
